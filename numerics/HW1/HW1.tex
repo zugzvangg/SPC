@@ -1,0 +1,121 @@
+\documentclass[prb,papersize=a4paper,notitlepage]{revtex4-2}%
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{graphicx,amsmath}
+\usepackage{enumitem}
+\usepackage{nicefrac}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{comment}
+\usepackage{bm}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdfpagemode=FullScreen,
+    }
+\begin{document}
+\title{Assignment 1}
+
+\maketitle
+
+\begin{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(5)} Consider the matrix $H(v)=\hat 1 - 2 v v^T$, where $v$ is a unit column vector. What is the rank of the matrix $H(v)$? Prove that it is orthogonal.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(10)} Prove the following inequalities and provide examples of $x$ and $A$ when they turn into equalities:
+\begin{itemize}
+\item $\norm{x}_2 \le \sqrt{m}\norm{x}_\infty$
+\item $\
+\norm{A}_\infty \le \sqrt{n} \norm{A}_2$
+\end{itemize}
+where $x$ is a vector of $m$ components and $A$ is $m\times n$ matrix.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(5)} Assuming $u$ and $v$ are $m$-vectors, consider the matrix $A=1+u v^T$ which is a rank-one perturbation of identity. Can it be singular? Assuming it is not, compute its inverse. You may look for it in a form of $A^{-1}=1+\alpha u v^T$ for some scalar $\alpha$ and evaluate $\alpha$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(5)} Prove that for any unitary matrix $U$ one has $\norm{UA}_F=\norm{AU}_F=\norm{A}_F$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+\item \textbf{(5)} In this exercise, you are expected to use vectorized NumPy operations as much as possible.
+     \begin{itemize}
+         \item Generate a random matrix:
+\lstset{language=Python}
+\lstset{frame=lines}
+\lstset{label={lst:code_direct}}
+\lstset{basicstyle=\ttfamily}
+\begin{lstlisting}
+n = 100
+A = np.random.normal(size=(n, n))
+\end{lstlisting}
+\item Plot the distribution function of the angles $\angle (a_i, a_j)$ where $a_i$ are columns of the matrix $a$ and $i\ne j$. How does the standard deviation of this distribution decay with $n$ (check this empirically)?
+\item Construct the matrix $a^\prime$ with column vectors obtained by normalizing the columns of $a$.
+\end{itemize}
+\end{comment}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+\item \textbf{(5)} Implement the function \lstinline{sum_array(A)} which takes a 2D numpy array \lstinline{A} as input and returns the sum of the array's elements. Consider doing it in 3 ways: (i) looping through the array explicitely, (ii) doing the jit version of (i), and (iii) using NumPy's built-in functionality. Time these three approaches for large enough arrays.
+\end{comment}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(10)} In this exercise your goal will be to study and speed up an implementation of \href{https://en.wikipedia.org/wiki/K-means_clustering}{K-means algorithm}. In the notebook \path{kmeans.ipynb}, you can find a naive implementation. Explore the code, make sure you understand it. You will find there two functions \texttt{dist\_i} and \texttt{dist\_ij} which are (on purpose) implemented in a rather inefficient way. Improve them by getting rid of the loops in the favor of a proper numpy vectorized implementation and measure the speed-up of the full algorithm for $N=10000$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(10)} Some things just can not be vectorized but still can be sped up compared to naive implementation. For example, consider computation of the \href{https://mathworld.wolfram.com/Hofstadter-Conway10000-DollarSequence.html}{Hofstadter-Conway sequence} $a(n)$ such that $a(1)=1$, $a(2)=1$ and
+\begin{equation}
+a(n) = a(a(n-1)) + a(n-a(n-1)),\quad n > 2
+\end{equation}
+Write three functions, computing the sequence up to $n$-th element in three ways: i) pre-allocating \texttt{numpy} array and filling it using \texttt{for} loop, ii) cumulatively appending \texttt{python} list and converting it to \texttt{numpy} array, iii) same as i)  but compiled (\texttt{jit}) version. Time the resulting implementations and conclude which is preferable. With the optimal one, compute $a(10^8)$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item \textbf{(15*)} Consider a function mapping six tensors to one tensor: $Z\left(\lambda^{(1)},\lambda^{(2)},\lambda^{(3)},\Gamma^{(1)}, \Gamma^{(2)}, U\right)$, with
+\begin{equation}
+Z_{ahij} = \sum_{bcdefg}\lambda^{(1)}{}_{ab}\Gamma^{(1)}{}_{cbd}\lambda^{(2)}{}_{de}\Gamma^{(2)}{}_{feg}\lambda^{(3)}{}_{gh}U_{ijcf}\label{eq:TEBD}.
+\end{equation}
+Assume that all indices of the tensors appearing above take values from $1$ to $\chi$. Running the numerical experiments, explore the values of $\chi$ in the range $3$--$50$ (from slowest to fastest implementation).
+\begin{itemize}
+    \item In the notebook \path{convolution.ipynb} you may find implemented a \emph{stupid} way to compute this convolution, which takes $\chi^4\times \chi^{6} = \chi^{10}$ flops. In fact, this can be computed much faster!
+    \item Using the function \texttt{numpy.einsum} (its crucial to use the \texttt{optimize} argument), you can actually achieve a much faster implementation. In order to understand what it is doing under the hood, explore the function \texttt{numpy.einsum\_path}. What is the minimal number of flops required for computation of $Z$?
+    \item Using the understanding of the output of \texttt{numpy.einsum\_path}, implement an algorithm to compute $Z$, which is as effective as \texttt{numpy.einsum}, but relying only on more elementary \texttt{numpy.dot} and \texttt{numpy.tensor\_dot}.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{enumerate}
+
+\end{document}
