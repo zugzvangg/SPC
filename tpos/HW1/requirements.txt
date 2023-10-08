@@ -1,0 +1,6 @@
+# Python 3.10.5
+libtmux==0.23.2
+loguru==0.7.2
+tqdm==4.66.1
+argparse==1.1
+notebook==6.5.1
