@@ -4,6 +4,7 @@ from tqdm import tqdm
 from loguru import logger
 import argparse
 import time
+from signal import SIGINT
 
 SESSION_BASE_NAME = "test"
 
@@ -13,12 +14,20 @@ def run(window: libtmux.window.Window) -> None:
     new_dir_name = window.name
     notebook_dir = os.getcwd() + "/" + new_dir_name
     os.makedirs(notebook_dir, exist_ok=True)
+    pane = window.panes[0]
+    # создаем venv
+    pane.send_keys(f"cd {new_dir_name}")
+    pane.send_keys(f"python3 -m venv venv")
+    time.sleep(3) # необходимо чтобы активировалось окружение
+    # активируем venv
+    pane.send_keys(f"source {notebook_dir + '/venv/bin/activate' }")
+    time.sleep(1)
     # получаем команду для этого окна
     jupyter_command = get_jupyter_command(
         notebook_dir=notebook_dir,
     )
     # создаем ноутбук
-    pane = window.panes[0]
+    
     stderr = pane.send_keys(jupyter_command)
     # чтобы лог успел напечататься
     time.sleep(1)
@@ -31,7 +40,6 @@ def run(window: libtmux.window.Window) -> None:
         port = link.split(":")[2].split("/")[0]
         result = f"run on PORT: {port} with TOKEN: {token}"
         return result
-
     # достаем из лога порт и токен
     jupyter_log = parse_jupyter_log(stderr)
     logger.debug(jupyter_log)
@@ -59,7 +67,7 @@ def get_session() -> libtmux.session.Session:
         logger.info(f"Created session {SESSION_BASE_NAME}")
     except libtmux.exc.TmuxSessionExists:
         session = server.sessions.get(session_name=SESSION_BASE_NAME)
-        logger.info(f"Connected to session {SESSION_BASE_NAME}")
+        # logger.info(f"Connected to session {SESSION_BASE_NAME}")
     return session
 
 
@@ -80,18 +88,20 @@ def stop(args: argparse.Namespace) -> None:
     session_name = args.session_name
     for window in all_windows:
         if window.id[1:] == str(session_name):
-            window.panes[0].send_keys("Ctrl+Z")
+            # если просто хотим убить ноутбук, не убивая окно
+            window.panes[0].send_keys("^Z")
             logger.debug(f"Killed venv with id = {session_name}")
             return
     logger.error(f"No session with id = {session_name}")
     return
 
 
-def stop_all(args: argparse.Namespace) -> None:
+def stop_all(args: argparse.Namespace = None) -> None:
     session = get_session()
     all_windows = session.windows
-    # for window in tqdm(all_windows):
-    #     window.kill_window()
+    for window in tqdm(all_windows):
+        # зато без повторения кода :) 
+        stop(argparse.Namespace(session_name=window.id[1:]))
 
 
 if __name__ == "__main__":
