@@ -3,45 +3,55 @@ import os
 from tqdm import tqdm
 from loguru import logger
 import argparse
-import inspect
-
-import random, string
+import time
 
 SESSION_BASE_NAME = "test"
 
 
-def random_session_name(length: int = 4):
-    """Just to create some randow window name"""
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for i in range(length))
-
-
-def make_venv(window: libtmux.window.Window):
+def run(window: libtmux.window.Window) -> None:
     # создаем папку
     new_dir_name = window.name
     notebook_dir = os.getcwd() + "/" + new_dir_name
-    os.mkdir(notebook_dir)
-
+    os.makedirs(notebook_dir, exist_ok=True)
+    # получаем команду для этого окна
     jupyter_command = get_jupyter_command(
-        port=3000,
-        token="smth",
         notebook_dir=notebook_dir,
     )
-    window.panes[0].send_keys(jupyter_command)
+    # создаем ноутбук
+    pane = window.panes[0]
+    stderr = pane.send_keys(jupyter_command)
+    # чтобы лог успел напечататься
+    time.sleep(1)
+    # читаем stderr
+    stderr = "\n".join(pane.cmd("capture-pane", "-p").stdout)
+
+    def parse_jupyter_log(log: str) -> str:
+        link = stderr[-100:].split("or")[1]
+        token = link.split("token=")[1]
+        port = link.split(":")[2].split("/")[0]
+        result = f"run on PORT: {port} with TOKEN: {token}"
+        return result
+
+    # достаем из лога порт и токен
+    jupyter_log = parse_jupyter_log(stderr)
+    logger.debug(jupyter_log)
 
 
 def get_jupyter_command(
-    port: int, token: str, notebook_dir: str, ip: str = "localhost"
-):
-    return f"""
-    jupyter notebook --ip {ip} --port {port} --no-browser --NotebookApp.token='{token}' --NotebookApp.notebook_dir='{notebook_dir}'
-    """
+    notebook_dir: str,
+    ip: str = "localhost",
+    port: int = None,
+    token: str = None,
+) -> str:
     # return f"""
-    # jupyter notebook
+    # jupyter notebook --ip {ip} --port {port} --no-browser --NotebookApp.token='{token}' --NotebookApp.notebook_dir='{notebook_dir}'
     # """
+    return f"""
+    jupyter notebook --no-browser --NotebookApp.notebook_dir='{notebook_dir + "/"}'
+    """
 
 
-def get_session():
+def get_session() -> libtmux.session.Session:
     """Get session"""
     server = libtmux.Server()
     try:
@@ -53,25 +63,35 @@ def get_session():
     return session
 
 
-def start(args: argparse.Namespace):
+def start(args: argparse.Namespace) -> None:
     num_users = args.num_users
     session = get_session()
-    for _ in tqdm(range(1, num_users + 1)):
-        new_window_name = random_session_name()
+    for i in tqdm(range(1, num_users + 1)):
+        # назовем окна как и директории, где будет запущен ноутбук
+        new_window_name = "dir" + str(i)
         window = session.new_window(attach=True, window_name=new_window_name)
-        make_venv(window)
+        run(window)
         logger.info(f"Start window {new_window_name}")
 
 
-def stop(args: argparse.Namespace):
-    session_name = args.session_name
-
-
-def stop_all(args: argparse.Namespace):
+def stop(args: argparse.Namespace) -> None:
     session = get_session()
     all_windows = session.windows
-    for window in tqdm(all_windows):
-        window.kill_window()
+    session_name = args.session_name
+    for window in all_windows:
+        if window.id[1:] == str(session_name):
+            window.panes[0].send_keys("Ctrl+Z")
+            logger.debug(f"Killed venv with id = {session_name}")
+            return
+    logger.error(f"No session with id = {session_name}")
+    return
+
+
+def stop_all(args: argparse.Namespace) -> None:
+    session = get_session()
+    all_windows = session.windows
+    # for window in tqdm(all_windows):
+    #     window.kill_window()
 
 
 if __name__ == "__main__":
