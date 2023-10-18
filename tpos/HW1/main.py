@@ -1,9 +1,11 @@
+#!./venv/bin/python
 import libtmux
 import os
 from tqdm import tqdm
 from loguru import logger
 import argparse
 import time
+import subprocess
 
 SESSION_BASE_NAME = "test"
 
@@ -16,8 +18,8 @@ def run(window: libtmux.window.Window) -> None:
     pane = window.panes[0]
     # создаем venv
     pane.send_keys(f"cd {new_dir_name}")
-    pane.send_keys(f"python3 -m venv venv")
-    time.sleep(3)  # необходимо чтобы активировалось окружение
+    pane.send_keys(f"python -m venv venv")
+    time.sleep(1)  # необходимо чтобы активировалось окружение
     # активируем venv
     pane.send_keys(f"source {notebook_dir + '/venv/bin/activate' }")
     time.sleep(1)
@@ -26,24 +28,7 @@ def run(window: libtmux.window.Window) -> None:
         notebook_dir=notebook_dir,
     )
     # создаем ноутбук
-
-    stderr = pane.send_keys(jupyter_command)
-    # чтобы лог успел напечататься
-    time.sleep(1)
-    # читаем stderr
-    stderr = "\n".join(pane.cmd("capture-pane", "-p").stdout)
-
-    def parse_jupyter_log(log: str) -> str:
-        link = stderr[-100:].split("or")[1]
-        token = link.split("token=")[1]
-        port = link.split(":")[2].split("/")[0]
-        result = f"run on PORT: {port} with TOKEN: {token}"
-        return result
-
-    # достаем из лога порт и токен
-    jupyter_log = parse_jupyter_log(stderr)
-    logger.debug(jupyter_log)
-
+    pane.send_keys(jupyter_command)
 
 def get_jupyter_command(
     notebook_dir: str,
@@ -51,9 +36,6 @@ def get_jupyter_command(
     port: int = None,
     token: str = None,
 ) -> str:
-    # return f"""
-    # jupyter notebook --ip {ip} --port {port} --no-browser --NotebookApp.token='{token}' --NotebookApp.notebook_dir='{notebook_dir}'
-    # """
     return f"""
     jupyter notebook --no-browser --NotebookApp.notebook_dir='{notebook_dir + "/"}'
     """
@@ -62,8 +44,9 @@ def get_jupyter_command(
 def get_session() -> libtmux.session.Session:
     """Get session"""
     server = libtmux.Server()
+
     try:
-        session = server.new_session(SESSION_BASE_NAME)
+        session = server.new_session(SESSION_BASE_NAME, attach=False)
         logger.info(f"Created session {SESSION_BASE_NAME}")
     except libtmux.exc.TmuxSessionExists:
         session = server.sessions.get(session_name=SESSION_BASE_NAME)
@@ -74,12 +57,20 @@ def get_session() -> libtmux.session.Session:
 def start(args: argparse.Namespace) -> None:
     num_users = args.num_users
     session = get_session()
-    for i in tqdm(range(1, num_users + 1)):
+    for i in tqdm(range(0, num_users)):
+        if session.windows[0].name in ["zsh", "bash"]:
+            new_window_name = 'dir0'
+            window = session.windows[0].rename_window(new_window_name)
+            logger.info("New session with zero window, so rename and process it!")
         # назовем окна как и директории, где будет запущен ноутбук
-        new_window_name = "dir" + str(i)
-        window = session.new_window(attach=True, window_name=new_window_name)
+        else:
+            new_window_name = "dir" + str(i)
+            window = session.new_window(attach=True, window_name=new_window_name)
         run(window)
         logger.info(f"Start window {new_window_name}")
+    notebooks = subprocess.run(['jupyter', 'notebook', 'list'], stdout=subprocess.PIPE).stdout
+    logger.info(notebooks)
+    time.sleep(1)
 
 
 def stop(args: argparse.Namespace) -> None:
