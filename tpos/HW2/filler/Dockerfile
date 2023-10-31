@@ -1,7 +1,8 @@
 FROM ubuntu:latest
 
+ENV $(cat .env | grep -v ^# | xargs)
+
 WORKDIR /srv/
-ADD ./filler /srv/
 
 RUN apt-get update -y
 RUN apt-get install -y python3 python3-pip libmariadb-dev vim
