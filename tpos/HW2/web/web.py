@@ -1,6 +1,7 @@
 from flask import Flask
 import mariadb
 import os
+import requests
 
 TABLE_NAME = os.getenv('TABLE_NAME')
 
@@ -13,25 +14,17 @@ def get_connection():
     )
     return conn
 
-print(1)
-connection = get_connection()
-cursor = connection.cursor()
-cursor.execute(f"SELECT * FROM {TABLE_NAME}")
-for (name, age) in cursor:
-    print(f"Name: {name}, age: {age}")
-    
-print(3)
-
 app = Flask(__name__)
 
+@app.route("/")
+def all_data():
+    cursor = get_connection().cursor()
+    cursor.execute(f"SELECT * FROM {TABLE_NAME}")
+    result = []
+    for (name, age) in cursor:
+        result.append((f"Name: {name}, age: {age}"))
+    return result
 
-
-
-
-
-
-
-
-@app.route("/hello")
-def hello_world():
-    return "<p>Hello, World!</p>"
+@app.route("/health")
+def health():
+    return {}
