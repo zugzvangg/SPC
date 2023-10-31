@@ -35,19 +35,22 @@ services:
     networks:
       - my-bridge-network
 
-  # web:
-  #   build:
-  #     dockerfile: web/Dockerfile
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     DB_HOST: db
-  #   depends_on:
-  #     - filler
-  #   ports:
-  #     - "8000:8000"
-  #   networks:
-  #     - my-bridge-network
+  web:
+    build:
+      dockerfile: web/Dockerfile
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+    volumes:
+      - ./web/web.py:/srv/web.py
+    depends_on:
+      - filler
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - my-bridge-network
 
 networks:
   my-bridge-network:

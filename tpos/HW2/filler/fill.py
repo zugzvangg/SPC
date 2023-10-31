@@ -25,7 +25,7 @@ if __name__ == "__main__":
         cursor.execute(
         f"INSERT INTO {TABLE_NAME} (name, age) VALUES (?, ?)",
         (row["name"], row["age"]))
-
+    conn.commit()
     #Check that info is in table
     print("Check that db is filled:")
     cursor.execute(f"SELECT * FROM {TABLE_NAME}")
