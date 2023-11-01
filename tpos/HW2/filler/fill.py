@@ -1,15 +1,18 @@
 import mariadb
 import pandas as pd
 import os
+import time
 
 TABLE_NAME = os.getenv("TABLE_NAME")
+
 if __name__ == "__main__":
-    # Connect to MariaDB 
+    # Connect to MariaDB
+    time.sleep(5)
     conn = mariadb.connect(
-        host=os.getenv('DB_HOST'),
+        host=os.getenv("DB_HOST"),
         user=os.getenv("MARIADB_USER"),
         password=os.getenv("MARIADB_PASSWORD"),
-        database=os.getenv("MARIADB_DATABASE")
+        database=os.getenv("MARIADB_DATABASE"),
     )
     cursor = conn.cursor()
     # cursor.execute(f"DROP TABLE IF EXISTS {TABLE_NAME}")
@@ -23,13 +26,14 @@ if __name__ == "__main__":
     # Write info to DB
     for index, row in data.iterrows():
         cursor.execute(
-        f"INSERT INTO {TABLE_NAME} (name, age) VALUES (?, ?)",
-        (row["name"], row["age"]))
+            f"INSERT INTO {TABLE_NAME} (name, age) VALUES (?, ?)",
+            (row["name"], row["age"]),
+        )
     conn.commit()
-    #Check that info is in table
+    # Check that info is in table
     print("Check that db is filled:")
     cursor.execute(f"SELECT * FROM {TABLE_NAME}")
-    for (name, age) in cursor:
+    for name, age in cursor:
         print(f"Name: {name}, age: {age}")
     # Close connection
     conn.close()
