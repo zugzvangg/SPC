@@ -1,52 +1,80 @@
-version: '1.0'
+version: "2.2"
 
 services:
   db:
     image: mariadb
     restart: always
+    container_name: db
     env_file:
       - .env
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_USER: ${MARIADB_ROOT_USER}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE} 
+      # MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      # MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      TABLE_NAME: ${TABLE_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
     ports:
       - "3306:3306"
+    
     networks:
       - my-bridge-network
 
   filler:
     build:
+      context: .
       dockerfile: filler/Dockerfile
+    container_name: filler
     env_file:
       - .env
-    environment:
-      DB_HOST: db
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
-      TABLE_NAME: ${TABLE_NAME}
     volumes:
       - ./data.csv:/srv/data.csv
       - ./filler/fill.py:/srv/fill.py
+    environment:
+      MARIADB_ROOT_USER: ${MARIADB_ROOT_USER}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      # MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      # MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      TABLE_NAME: ${TABLE_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - my-bridge-network
 
   web:
     build:
+      context: .
       dockerfile: web/Dockerfile
+    container_name: web
     env_file:
       - .env
     environment:
-      DB_HOST: db
+      MARIADB_ROOT_USER: ${MARIADB_ROOT_USER}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      # MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      # MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      TABLE_NAME: ${TABLE_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
     volumes:
       - ./web/web.py:/srv/web.py
     depends_on:
-      - filler
-      - db
+      db:
+        condition: service_healthy
+      filler:
+        condition: service_started
     ports:
       - "8000:8000"
     networks:
