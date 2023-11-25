@@ -1,0 +1,19 @@
+---
+- name: Установка пакетов на Ubuntu
+  hosts: homework_node
+  become: true
+  become_user: root
+  become_method: sudo
+
+  tasks:
+    - name: Установка Nginx, cron и jq
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - nginx
+        - cron
+        - jq
+
+
