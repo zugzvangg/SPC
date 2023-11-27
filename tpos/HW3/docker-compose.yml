@@ -7,6 +7,9 @@ services:
     stdin_open: true
     tty: true
     container_name: ubuntu_hw3
+    ports:
+      - "80:80"
+    
 
 
     

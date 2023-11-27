@@ -6,7 +6,7 @@
   become_method: sudo
 
   tasks:
-    - name: Установка Nginx, cron и jq
+    - name: Install Nginx, cron и jq
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
@@ -31,7 +31,7 @@
         src: service_state.json
         dest: /opt/service_state.json
 
-    - name: nginx restart
+    - name: Nginx restart
       service:
         name: nginx
         state: restarted
