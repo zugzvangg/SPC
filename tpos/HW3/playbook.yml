@@ -16,4 +16,31 @@
         - cron
         - jq
 
+    - name: Copy updated nginx.conf to the host
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+
+    - name: Create file /opt/service_state.json
+      ansible.builtin.file:
+        path: /opt/service_state.json
+        state: touch
+
+    - name: Copy service_state.json to the host
+      copy:
+        src: service_state.json
+        dest: /opt/service_state.json
+
+    - name: nginx restart
+      service:
+        name: nginx
+        state: restarted
+
+    - cron:
+        name: "Add command on writing to /opt/service_state.json"
+        user: "root"
+        job: 'echo "$(jq ".uptime = $(($(ps -o etimes= -p $(cat /var/run/nginx.pid)) / 60))" /opt/service_state.json)" > /opt/service_state.json'
+        state: present
+
+    
 
