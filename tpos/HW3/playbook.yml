@@ -36,11 +36,13 @@
         name: nginx
         state: restarted
 
-    - cron:
+    - name: Put command to cron
+      ansible.builtin.cron:
         name: "Add command on writing to /opt/service_state.json"
-        user: "root"
         job: 'echo "$(jq ".uptime = $(($(ps -o etimes= -p $(cat /var/run/nginx.pid)) / 60))" /opt/service_state.json)" > /opt/service_state.json'
-        state: present
+        user: root
+        # cron_file: /etc/cron.d/e2scrub_all
+
 
     
 
