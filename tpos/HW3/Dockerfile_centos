@@ -4,4 +4,4 @@ RUN yum -y install epel-release
 RUN yum -y install sudo
 RUN yum -y install python3-pip vim
 
-EXPOSE 81
+EXPOSE 80

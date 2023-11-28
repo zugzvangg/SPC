@@ -16,12 +16,17 @@ services:
     build: 
       dockerfile: Dockerfile_centos
     image: centos_custom
+    deploy:
+      mode: replicated
+      replicas: 1
+    privileged: true
     restart: always
+    command: /usr/sbin/init
     stdin_open: true
     tty: true
     container_name: centos_hw3
     ports:
-      - "81:81"
+      - "80:80"
     
 
 

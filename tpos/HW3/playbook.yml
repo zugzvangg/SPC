@@ -1,12 +1,12 @@
 ---
-- name: Установка пакетов на Ubuntu
-  hosts: homework_node
+- name: ДЗ ansible
+  hosts: homework_ansible
   become: true
   become_user: root
   become_method: sudo
 
   tasks:
-    - name: Install Nginx, cron и jq
+    - name: Install Nginx, cron и jq on Ubuntu
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
@@ -15,35 +15,64 @@
         - nginx
         - cron
         - jq
+      when: ansible_distribution == 'Ubuntu'
 
+    - name: Install Nginx, cron и jq on Centos
+      yum:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - nginx
+        - cronie
+        - jq
+      when: ansible_distribution == 'CentOS'
+
+    - name: Check if service_state.json exists
+      ansible.builtin.stat:
+        path: /opt/service_state.json
+      register: service_state
+
+    - name: Create file /opt/service_state.json if does not exist
+      copy:
+        src: service_state.json
+        dest: /opt/service_state.json
+      when: not service_state.stat.exists
+
+    - name: Read title from service_state
+      ansible.builtin.command: jq -r .title /opt/service_state.json
+      register: current_title
+      changed_when: false
+
+    - name: Copy "title" from file if it is not equal to the "title" from old file
+      ansible.builtin.copy:
+        src: service_state.json
+        dest: /opt/service_state.json
+      register: copy_title
+      notify: restart_nginx
+      when: current_title.stdout != ((lookup('file', 'service_state.json') | from_json | default({})).title)
+    
     - name: Copy updated nginx.conf to the host
       copy:
         src: nginx.conf
         dest: /etc/nginx/nginx.conf
+      notify: restart_nginx
 
-    - name: Create file /opt/service_state.json
-      ansible.builtin.file:
-        path: /opt/service_state.json
-        state: touch
-
-    - name: Copy service_state.json to the host
-      copy:
-        src: service_state.json
-        dest: /opt/service_state.json
-
-    - name: Nginx restart
+    - name: Put command to cron
+      ansible.builtin.cron:
+        state: present
+        name: "Add command on writing to /opt/service_state.json"
+        job: 'echo "$(jq ".uptime = $(($(ps -o etimes= -p $(cat /var/run/nginx.pid)) / 60))" /opt/service_state.json)" > /opt/service_state.json'
+        user: root
+      notify: restart_cron
+    
+  handlers:
+    - name: restart_nginx
       service:
         name: nginx
         state: restarted
 
-    - name: Put command to cron
-      ansible.builtin.cron:
-        name: "Add command on writing to /opt/service_state.json"
-        job: 'echo "$(jq ".uptime = $(($(ps -o etimes= -p $(cat /var/run/nginx.pid)) / 60))" /opt/service_state.json)" > /opt/service_state.json'
-        user: root
-        # cron_file: /etc/cron.d/e2scrub_all
-    
-    - name: Cron restart
+    - name: restart_cron
       service:
         name: cron
         state: restarted
