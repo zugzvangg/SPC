@@ -2,6 +2,8 @@ version: "2.2"
 
 services:
   ubuntu:
+    build: 
+      dockerfile: Dockerfile_ubuntu
     image: ubuntu_custom
     restart: always
     stdin_open: true
@@ -9,6 +11,17 @@ services:
     container_name: ubuntu_hw3
     ports:
       - "80:80"
+
+  centos:
+    build: 
+      dockerfile: Dockerfile_centos
+    image: centos_custom
+    restart: always
+    stdin_open: true
+    tty: true
+    container_name: centos_hw3
+    ports:
+      - "81:81"
     
 
 

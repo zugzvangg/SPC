@@ -1,0 +1,7 @@
+FROM centos:7
+
+RUN yum -y install epel-release
+RUN yum -y install sudo
+RUN yum -y install python3-pip vim
+
+EXPOSE 81
