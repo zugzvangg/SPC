@@ -28,6 +28,17 @@
         - jq
       when: ansible_distribution == 'CentOS'
 
+    - name: Install Nginx, cron и jq on Arch
+      pacman:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - nginx
+        - cronie
+        - jq
+      when: ansible_distribution == 'Arch'
+
     - name: Check if service_state.json exists
       ansible.builtin.stat:
         path: /opt/service_state.json
