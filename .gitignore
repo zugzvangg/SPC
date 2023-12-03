@@ -131,6 +131,8 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+.DS_Store
+.python-version
 
 # Rope project settings
 .ropeproject
