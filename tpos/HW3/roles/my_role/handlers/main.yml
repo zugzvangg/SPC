@@ -1,0 +1,26 @@
+
+
+- name: restart_nginx
+  command: "nginx -c /etc/nginx/nginx.conf"
+  become: yes
+  become_method: sudo
+
+- name: restart_cron
+  command: "{{ 'cron' if ansible_distribution == 'Ubuntu' else 'crond' }}"
+  become: yes
+  become_method: sudo
+
+# crond
+# - name: restart_nginx
+#   service:
+#     name: nginx
+#     state: restarted
+#     enabled: true
+#     use: "a turnip"
+
+# - name: restart_cron
+#   service:
+#     name: cron
+#     state: restarted
+#     enabled: true
+#     use: "a turnip"
